@@ -24,12 +24,14 @@ import groovy.sql.Sql;
 class DataBaseConvert {
 	private Sql source = Sql.newInstance (
 		'jdbc:postgresql://localhost:5432/fox',
-
+		'fox',
+		'1qaz',
 		'org.postgresql.Driver');
 	
 	private Sql target = Sql.newInstance (
 		'jdbc:mariadb://localhost:3306/fox',
-
+		'fox',
+		'dick1227',
 		'org.mariadb.jdbc.Driver');
 	
 	def tables = ['serialnumber', 'test'];
