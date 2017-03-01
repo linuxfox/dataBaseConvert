@@ -8,22 +8,32 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.Test
+
+import com.google.common.collect.StandardTable.Row.RowEntrySet;
 
 import groovy.sql.DataSet
 import groovy.sql.GroovyRowResult
 import groovy.sql.Sql;
 
+/**
+ * mssql -> mariadb 로 data convert
+ * @author fox
+ *
+ */
 class DataBaseConvert {
 	private Sql source = Sql.newInstance (
-
-		'org.mariadb.jdbc.Driver');
-	
-	private Sql target = Sql.newInstance (
+		'jdbc:postgresql://localhost:5432/fox',
 
 		'org.postgresql.Driver');
 	
+	private Sql target = Sql.newInstance (
+		'jdbc:mariadb://localhost:3306/fox',
+
+		'org.mariadb.jdbc.Driver');
 	
+	def tables = ['serialnumber', 'test'];
+	 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 	}
@@ -44,36 +54,79 @@ class DataBaseConvert {
 	}
 	
 	@Test
-	public void convert(){
-		//String query = "select * from mk_sequence limit 2";
+	public void convertTable() throws Exception {
 		
-		String query_tbl = "select top 10 * from INFORMATION_SCHEMA.TABLES";
-		String query_col = "select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = :table_name";
-		
-		/*
-		sql.eachRow(query_tbl){ tables ->
-			String table_name = tables.TABLE_NAME;
+		tables.each{ table ->
 			
-			String ddl = "create $table_name (";
+			String query_tbl = "select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '$table'";
+			String query_col = "select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = :table_name";
 			
-			sql.eachRow(query_col, [table_name:tables.TABLE_NAME]){ rows ->
-				//print(rows.TABLE_NAME);
-				//print(rows.COLUMN_NAME);
-				//print(rows.DATA_TYPE);
-				//println(rows.CHARACTER_MAXIMUM_LENGTH);
-				//Map columns = rows.findAll();
-				//print(columns);
+			source.eachRow(query_tbl){ tables ->
+				String table_name = tables.TABLE_NAME;
+				
+				String ddl = " create table if not exists $table_name (";
+				
+				int i = 0;
+				source.eachRow(query_col, [table_name:tables.TABLE_NAME]){ row ->
+					def comma = i > 0 ? ", " : " ";
+					
+					ddl = ddl + comma + row.COLUMN_NAME + " " + convertType(i, row.udt_name , row.CHARACTER_MAXIMUM_LENGTH);
+					i++;
+				}
+				
+				
+				ddl = ddl + ") COLLATE='utf8_general_ci' ENGINE=InnoDB ;";
+				
+				println(ddl);
+				
+				target.execute(ddl);
 			}
 			
-			ddl = ddl + ")";
+			DataSet dataset = target.dataSet(table);
+			List<Map<String, Object>> rows = source.rows("select * from " + table + "");
 			
-			println(ddl);
+			rows.each { row ->
+				dataset.add(row);
+			}
+			println(rows);
 		}
+		
+		/*
+		int i = 0;
+		sql.eachRow("select * from AccountsProfile") { row ->
+			println(row);
+			
+			i++;
+		}
+		
+		println(i);
 		*/
 		
-		source.eachRow("select * from serialnumber"){ row ->
-			def meta = row.getMetaData();
-			println(meta.getColumnName(1) + ':' +  row['number']);
+		source.close();
+		target.close();
+	}
+	
+	
+	private String convertType(int i, String type, length){		
+		String ddl = "";
+		
+		if(length == null){
+			if(type.equals("uniqueidentifier")){
+				type = "int";
+			}
+
+			ddl = type + " ";
 		}
+		else if(type.equals("text")){
+			ddl = "longtext ";
+		}
+		else if(type.equals("image")){
+			ddl = "longblob ";
+		}
+		else{
+			ddl = type + "(" + length + ") ";
+		}
+		
+		return ddl;
 	}
 }
