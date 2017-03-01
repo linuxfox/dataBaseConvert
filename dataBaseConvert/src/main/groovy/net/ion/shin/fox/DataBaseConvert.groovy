@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test
 
-import com.google.common.collect.StandardTable.Row.RowEntrySet;
+//import com.google.common.collect.StandardTable.Row.RowEntrySet;
 
 import groovy.sql.DataSet
 import groovy.sql.GroovyRowResult
@@ -24,14 +24,12 @@ import groovy.sql.Sql;
 class DataBaseConvert {
 	private Sql source = Sql.newInstance (
 		'jdbc:postgresql://localhost:5432/fox',
-		'fox',
-		'1qaz',
+
 		'org.postgresql.Driver');
 	
 	private Sql target = Sql.newInstance (
 		'jdbc:mariadb://localhost:3306/fox',
-		'fox',
-		'dick1227',
+
 		'org.mariadb.jdbc.Driver');
 	
 	def tables = ['serialnumber', 'test'];
@@ -92,17 +90,6 @@ class DataBaseConvert {
 			}
 			println(rows);
 		}
-		
-		/*
-		int i = 0;
-		sql.eachRow("select * from AccountsProfile") { row ->
-			println(row);
-			
-			i++;
-		}
-		
-		println(i);
-		*/
 		
 		source.close();
 		target.close();
