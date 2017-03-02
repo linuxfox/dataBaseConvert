@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import net.ion.shin.fox.DataBaseConvert;
 class SyntexTest {
 
 	@Test
@@ -14,5 +15,8 @@ class SyntexTest {
 		def a = 1;
 		
 		print(" aaa bbb ${a} bbbb");
+		
+		DataBaseConvert convert = new DataBaseConvert();
+		convert.convertQuery();
 	}
 }

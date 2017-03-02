@@ -22,14 +22,18 @@ import groovy.sql.Sql;
  *
  */
 class DataBaseConvert {
+	private final GroovyClassLoader classLoader = new GroovyClassLoader();
+	
 	private Sql source = Sql.newInstance (
 		'jdbc:postgresql://localhost:5432/fox',
-
+		'fox',
+		'1qaz',
 		'org.postgresql.Driver');
 	
 	private Sql target = Sql.newInstance (
 		'jdbc:mariadb://localhost:3306/fox',
-
+		'fox',
+		'dick1227',
 		'org.mariadb.jdbc.Driver');
 	
 	def tables = ['serialnumber', 'test'];
@@ -54,6 +58,45 @@ class DataBaseConvert {
 	}
 	
 	@Test
+	public void sysTest(){
+		def process = "pwd".execute();
+		println(process.getText());
+	}
+	
+	/**
+	 * xml을 기반으로 마이그레이션을 수행한다.
+	 * @throws Exception
+	 */
+	@Test
+	public void convertQuery() throws Exception {
+		def converts = new XmlParser().parseText(new FileReader("src/main/resource/dataBaseConvert.xml").getText());
+		
+		ConvertExecutor executor;
+		Map<String, Object> param = new HashMap<String, Object>();
+		for(def convert in converts.children()){
+			String title = convert.'@title';
+			String select = convert.select[0].text();
+			String targetTable = convert.execute[0].'@target';
+			String classpath = convert.classpath[0].text().toString().trim();
+			
+			
+			List<Map<String, Object>> rows = source.rows(select);
+			
+			executor = classLoader.loadClass(classpath).newInstance();
+			DataSet dataset = target.dataSet(targetTable);
+			for(Map row in rows){
+				executor.exec(title, row);
+				dataset.add(row);
+			}
+			
+		}
+	}
+	
+	/**
+	 * 1 : 1 마이그레이션을 수행한다.
+	 * @throws Exception
+	 */
+	//@Test
 	public void convertTable() throws Exception {
 		
 		tables.each{ table ->

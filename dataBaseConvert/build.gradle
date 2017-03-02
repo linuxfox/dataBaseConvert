@@ -20,4 +20,5 @@ dependencies {
     compile group: 'commons-lang', name: 'commons-lang', version:'2.5'
     compile group: 'commons-beanutils', name: 'commons-beanutils', version:'1.9.2'
     compile group: 'com.google.guava', name: 'guava', version:'18.0'
+	compile group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '6.1.0.jre8'
 }

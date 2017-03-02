@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<converts>
+
+	<convert title="query convert" id="">
+		<select>
+			select a * 1024 as a, b || '123' as b from test
+		</select>
+		
+		<execute target="test">
+		</execute>
+		
+		<classpath>
+			net.ion.shin.fox.ImageConvert
+		</classpath>
+	</convert>
+	
+</converts>
