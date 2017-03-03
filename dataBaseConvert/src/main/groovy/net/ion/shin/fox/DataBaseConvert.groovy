@@ -57,7 +57,7 @@ class DataBaseConvert {
 		target.close();
 	}
 	
-	@Test
+	//@Test
 	public void sysTest(){
 		def process = "pwd".execute();
 		println(process.getText());
@@ -74,6 +74,33 @@ class DataBaseConvert {
 		ConvertExecutor executor;
 		Map<String, Object> param = new HashMap<String, Object>();
 		for(def convert in converts.children()){
+
+			def selectNode = convert.select[0];
+			def targetNode = convert.execute[0];
+			def classpathNode = convert.classpath[0];
+			
+			if(selectNode != null && !selectNode.text().trim().isEmpty()){
+				String select = selectNode.text();
+				
+									
+				if(targetNode != null){
+					String targetTable = targetNode.'@target';
+					String targetQeury = targetNode.text();
+					if(targetTable != null && !targetTable.trim().isEmpty()){
+						
+					}
+					else{
+						DataSet dataset = target.dataSet(targetTable);
+						
+					}
+				}
+				
+				if(targetNode != null){
+				
+				}
+			}
+			
+			/*
 			String title = convert.'@title';
 			String select = convert.select[0].text();
 			String targetTable = convert.execute[0].'@target';
@@ -88,6 +115,7 @@ class DataBaseConvert {
 				executor.exec(title, row);
 				dataset.add(row);
 			}
+			*/
 			
 		}
 	}

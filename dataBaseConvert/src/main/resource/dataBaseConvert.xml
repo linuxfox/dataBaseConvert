@@ -3,10 +3,11 @@
 
 	<convert title="query convert" id="">
 		<select>
-			select a * 1024 as a, b || '123' as b from test
+			select t1.a * 1024 as a, t1.b as b from test t1, test t2
 		</select>
 		
 		<execute target="test">
+		    update test a = :a where b = :b
 		</execute>
 		
 		<classpath>

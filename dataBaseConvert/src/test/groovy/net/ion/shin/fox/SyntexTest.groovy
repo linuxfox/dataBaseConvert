@@ -14,7 +14,7 @@ class SyntexTest {
 	public void gstringTest(){
 		def a = 1;
 		
-		print(" aaa bbb ${a} bbbb");
+		//print(" aaa bbb ${a} bbbb");
 		
 		DataBaseConvert convert = new DataBaseConvert();
 		convert.convertQuery();
